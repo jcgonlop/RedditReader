@@ -7,3 +7,9 @@
 //
 
 import Foundation
+
+struct ListingServices {
+    
+    static let getTopReddits: HTTPRequest = HTTPRequest<EmptyData, RedditList>(endpoint: Endpoint.topJSON)
+    
+}

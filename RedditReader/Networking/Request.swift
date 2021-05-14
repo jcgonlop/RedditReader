@@ -18,7 +18,19 @@ public protocol RequestProtocol {
     var endpoint: EndpointProtocol { get }
     var method: RequestMethod? { get }
     var queryItems: [URLQueryItem] { get }
-    var requestData: Codable { get }
-    var responseData: Codable { get }
+    
+}
+
+public struct HTTPRequest<Request: Codable, Response: Codable>: RequestProtocol {
+    
+    public var endpoint: EndpointProtocol
+    public var method: RequestMethod?
+    public var queryItems: [URLQueryItem]
+    
+    public init(endpoint: EndpointProtocol, method: HTTPMethod = .get, queryItems: [URLQueryItem] = []) {
+        self.endpoint = endpoint
+        self.method = method
+        self.queryItems = queryItems
+    }
     
 }
