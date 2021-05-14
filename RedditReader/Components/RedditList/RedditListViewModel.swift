@@ -17,10 +17,6 @@ class RedditListViewModel: NSObject {
     private var currentPage: Int = 0
     private var batchSize: Int = 10
     
-    override init() {
-        
-    }
-    
     deinit {
         self.cancel()
     }

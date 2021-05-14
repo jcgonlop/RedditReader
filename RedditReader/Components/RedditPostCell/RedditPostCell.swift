@@ -14,17 +14,14 @@ class RedditPostCell: UITableViewCell {
     static let reuseIdentifier: String = "RedditPostCell"
     
     var viewModel: RedditPostViewModel
-    var imageDataSubscription: AnyCancellable?
+    private var imageDataSubscription: AnyCancellable?
     
-    private var titleLabel = UILabel()
-    private var authorLabel = UILabel()
-    private var subRedditLabel = UILabel()
-    private var thumbnailImage = UIImageView(image: .placeholder)
-    private var mainStack = UIStackView()
-    private var detailStack = UIStackView()
-    
-    private var thumbnailHeightConstraint: NSLayoutConstraint?
-    private var thumbnailWidthConstraint: NSLayoutConstraint?
+    private let titleLabel = UILabel()
+    private let authorLabel = UILabel()
+    private let subRedditLabel = UILabel()
+    private let thumbnailImage = UIImageView(image: .placeholder)
+    private let mainStack = UIStackView()
+    private let detailStack = UIStackView()
     
     // MARK: - Initializers
     
@@ -44,14 +41,11 @@ class RedditPostCell: UITableViewCell {
     func initialSetup() {
         self.selectionStyle = .none
         contentView.addSubview(mainStack)
-        let mainStackHeightConstraint = NSLayoutConstraint(item: mainStack, attribute: .height, relatedBy: .greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 60)
-        mainStackHeightConstraint.priority = .defaultLow
         NSLayoutConstraint.activate([
             mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
             mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
             mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            mainStackHeightConstraint,
         ])
         contentView.backgroundColor = .clear
     }
@@ -69,7 +63,7 @@ class RedditPostCell: UITableViewCell {
         self.mainStack.axis = .horizontal
         self.mainStack.translatesAutoresizingMaskIntoConstraints = false
         self.mainStack.distribution = .fillProportionally
-        mainStack.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        self.thumbnailImage.setContentHuggingPriority(.defaultLow, for: .vertical)
         mainStack.spacing = 12
         mainStack.backgroundColor = .timberwolf
         mainStack.layer.cornerRadius = 12
@@ -122,22 +116,9 @@ class RedditPostCell: UITableViewCell {
         self.thumbnailImage.translatesAutoresizingMaskIntoConstraints = false
         self.thumbnailImage.contentMode = .scaleAspectFit
         self.thumbnailImage.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
-        
-        if let heightConstraint = self.thumbnailHeightConstraint {
-            heightConstraint.constant = self.viewModel.thumbnailSize.height
-        } else {
-            let constraint = NSLayoutConstraint(item: self.thumbnailImage, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: self.viewModel.thumbnailSize.height)
-            self.thumbnailHeightConstraint = constraint
-            self.thumbnailWidthConstraint?.priority = .defaultHigh
-            self.thumbnailImage.addConstraint(constraint)
-        }
-        if let widthConstraint = self.thumbnailWidthConstraint {
-            widthConstraint.constant = self.viewModel.thumbnailSize.width
-        } else {
-            let constraint = NSLayoutConstraint(item: self.thumbnailImage, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: self.viewModel.thumbnailSize.width)
-            self.thumbnailWidthConstraint = constraint
-            self.thumbnailImage.addConstraint(constraint)
-        }
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: self.thumbnailImage, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: self.viewModel.thumbnailSize.width)
+        ])
         self.mainStack.addArrangedSubview(self.thumbnailImage)
         self.thumbnailImage.didMoveToSuperview()
     }

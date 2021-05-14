@@ -54,6 +54,13 @@ class HomeViewController: UIViewController {
         redditListViewModel.cancel()
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        self.redditListView.beginUpdates()
+        self.redditListView.layoutSubviews()
+        self.redditListView.endUpdates()
+    }
+    
     // MARK: - Setup Methods
     
     private func setupConstraints() {

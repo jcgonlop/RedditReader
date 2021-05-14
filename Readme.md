@@ -8,3 +8,4 @@
 - Forced Pagination
 - NetworkManager + Combine
 - URL Image Fetecher
+- Support multiple device orientation
