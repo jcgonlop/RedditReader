@@ -22,6 +22,12 @@ public class HTTPNetworkManager: NetworkManagerProtocol {
     public var baseURL: String
     private var defaultSession: URLSession
     private var cancellables: Set<AnyCancellable> = []
+    private var backgroundScheduler: OperationQueue = {
+        let operationQueue = OperationQueue()
+        operationQueue.maxConcurrentOperationCount = 3
+        operationQueue.qualityOfService = QualityOfService.userInitiated
+        return operationQueue
+    }()
     
     public init(baseURL: String) {
         self.baseURL = baseURL
@@ -45,6 +51,8 @@ public class HTTPNetworkManager: NetworkManagerProtocol {
                 return element.data
             }
             .decode(type: Request.Response.self, decoder: JSONDecoder())
+            .subscribe(on: backgroundScheduler)
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
     

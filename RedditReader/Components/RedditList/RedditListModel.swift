@@ -10,6 +10,16 @@ import Foundation
 
 struct RedditListModel {
     
+    var redditPostList: [RedditPostModel]
     
+    init(redditPostList: [RedditPostModel] = []) {
+        self.redditPostList = redditPostList
+    }
+    
+    init(_ dataModel: RedditList) {
+        self.redditPostList = dataModel.data.children.map {
+            RedditPostModel($0)
+        }
+    }
     
 }
