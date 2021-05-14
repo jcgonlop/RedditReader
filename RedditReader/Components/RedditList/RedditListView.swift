@@ -12,14 +12,19 @@ import Combine
 class RedditListView: UITableView {
     
     var viewModel: RedditListViewModel
-    var listBinding: AnyCancellable?
+    var cancellables: Set<AnyCancellable> = []
+    var spinner: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
     
     // MARK: - Initializers
     
     init(viewModel: RedditListViewModel) {
         self.viewModel = viewModel
         super.init(frame: CGRect.zero, style: .plain)
+        self.refreshControl = UIRefreshControl()
+        self.refreshControl?.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        self.refreshControl?.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         self.setupBindings()
+        self.setupView()
     }
     
     required init?(coder: NSCoder) {
@@ -29,13 +34,47 @@ class RedditListView: UITableView {
     
     // MARK: - Setup Methods
     
+    func setupView() {
+        self.spinner.isHidden = true
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(spinner)
+        NSLayoutConstraint.activate([
+            NSLayoutConstraint(item: spinner, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1.0, constant: 0.0),
+            NSLayoutConstraint(item: spinner, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1.0, constant: 0.0),
+        ])
+        if let refreshControl = self.refreshControl {
+            self.addSubview(refreshControl)
+        }
+    }
+    
+    func showLoader(_ isLoading: Bool) {
+        if isLoading {
+            self.spinner.startAnimating()
+        } else {
+            self.spinner.stopAnimating()
+        }
+        self.spinner.isHidden = !isLoading
+    }
+    
     func setupBindings() {
-        self.listBinding = viewModel.postsList.sink { [weak self] newValue in
+        viewModel.postsList.sink { [weak self] newValue in
             guard let self = self else { return }
+            self.refreshControl?.endRefreshing()
             if !newValue.isEmpty {
                 self.reloadData()
             }
-        }
+        }.store(in: &cancellables)
+        viewModel.loading.sink { [weak self] (isLoading) in
+            guard let self = self else { return }
+            self.showLoader(isLoading && self.viewModel.postsList.value.isEmpty)
+            self.layoutSubviews()
+        }.store(in: &cancellables)
+    }
+    
+    // MARK: - Actions
+    
+    @objc func refresh(_ sender: AnyObject) {
+        self.viewModel.fetchPosts()
     }
     
 }

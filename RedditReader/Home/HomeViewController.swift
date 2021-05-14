@@ -68,6 +68,9 @@ class HomeViewController: UIViewController {
     }
     
     func setupTableView() {
+        self.view.backgroundColor = .lightBackground
+        self.title = "Home"
+        self.navigationItem.titleView?.tintColor = .lightBackground
         redditListView.register(RedditPostCell.self, forCellReuseIdentifier: RedditPostCell.reuseIdentifier)
         redditListView.separatorStyle = .none
         redditListView.rowHeight = UITableView.automaticDimension
@@ -79,10 +82,8 @@ class HomeViewController: UIViewController {
 extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        
         let vm = redditListViewModel.postsList.value[indexPath.row]
-        
-        return UITableView.automaticDimension
+        return vm.thumbnailSize.height + 24
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

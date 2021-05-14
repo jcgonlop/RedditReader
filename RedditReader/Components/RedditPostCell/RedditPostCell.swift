@@ -14,7 +14,7 @@ class RedditPostCell: UITableViewCell {
     static let reuseIdentifier: String = "RedditPostCell"
     
     var viewModel: RedditPostViewModel
-    var listSubscription: AnyCancellable?
+    var imageDataSubscription: AnyCancellable?
     
     private var titleLabel = UILabel()
     private var authorLabel = UILabel()
@@ -31,16 +31,7 @@ class RedditPostCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.viewModel = RedditPostViewModel()
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        contentView.addSubview(mainStack)
-        let mainStackHeightConstraint = NSLayoutConstraint(item: mainStack, attribute: .height, relatedBy: .greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 60)
-        mainStackHeightConstraint.priority = .defaultLow
-        NSLayoutConstraint.activate([
-            mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            mainStackHeightConstraint,
-        ])
+        self.initialSetup()
     }
     
     required init?(coder: NSCoder) {
@@ -50,11 +41,27 @@ class RedditPostCell: UITableViewCell {
     
     // MARK: - Setup Methods
     
+    func initialSetup() {
+        contentView.addSubview(mainStack)
+        let mainStackHeightConstraint = NSLayoutConstraint(item: mainStack, attribute: .height, relatedBy: .greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 60)
+        mainStackHeightConstraint.priority = .defaultLow
+        NSLayoutConstraint.activate([
+            mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
+            mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            mainStackHeightConstraint,
+        ])
+        contentView.backgroundColor = .clear
+    }
+    
     func setupView(viewModel: RedditPostViewModel) {
         self.viewModel = viewModel
+        setupBindings()
         setupMainStack()
         setupThumbnail()
         setupDetail()
+        viewModel.fetchImage()
     }
     
     private func setupMainStack() {
@@ -62,9 +69,10 @@ class RedditPostCell: UITableViewCell {
         self.mainStack.translatesAutoresizingMaskIntoConstraints = false
         self.mainStack.distribution = .fillProportionally
         mainStack.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-        mainStack.spacing = 10
-        mainStack.backgroundColor = .blue
+        mainStack.spacing = 12
+        mainStack.backgroundColor = .timberwolf
         mainStack.layer.cornerRadius = 12
+        mainStack.clipsToBounds = true
     }
     
     private func setupDetail() {
@@ -72,8 +80,8 @@ class RedditPostCell: UITableViewCell {
         self.detailStack.translatesAutoresizingMaskIntoConstraints = false
         self.detailStack.distribution = .fillProportionally
         self.mainStack.addArrangedSubview(detailStack)
+        detailStack.spacing = 10
         detailStack.didMoveToSuperview()
-        mainStack.backgroundColor = .red
         setupSubredditLabel()
         setupTitle()
         setupAuthorLabel()
@@ -82,7 +90,8 @@ class RedditPostCell: UITableViewCell {
     private func setupTitle() {
         self.titleLabel.text = viewModel.title
         self.titleLabel.numberOfLines = 2
-        self.titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        self.titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        self.titleLabel.textColor = .darkBackground
         self.titleLabel.translatesAutoresizingMaskIntoConstraints = false
         self.detailStack.addArrangedSubview(titleLabel)
         titleLabel.didMoveToSuperview()
@@ -90,8 +99,9 @@ class RedditPostCell: UITableViewCell {
     
     private func setupAuthorLabel() {
         self.authorLabel.text = "Written by: \(viewModel.author)"
-        self.titleLabel.numberOfLines = 1
-        self.titleLabel.font = UIFont.systemFont(ofSize: 12)
+        self.authorLabel.numberOfLines = 1
+        self.authorLabel.font = UIFont.systemFont(ofSize: 12)
+        self.authorLabel.textColor = .lightDark
         self.authorLabel.translatesAutoresizingMaskIntoConstraints = false
         self.detailStack.addArrangedSubview(authorLabel)
         authorLabel.didMoveToSuperview()
@@ -99,8 +109,9 @@ class RedditPostCell: UITableViewCell {
     
     private func setupSubredditLabel() {
         self.subRedditLabel.text = viewModel.subreddit
-        self.titleLabel.numberOfLines = 1
-        self.titleLabel.font = UIFont.systemFont(ofSize: 10)
+        self.subRedditLabel.numberOfLines = 1
+        self.subRedditLabel.font = UIFont.systemFont(ofSize: 10)
+        self.subRedditLabel.textColor = .lightDark
         self.subRedditLabel.translatesAutoresizingMaskIntoConstraints = false
         self.detailStack.addArrangedSubview(subRedditLabel)
         subRedditLabel.didMoveToSuperview()
@@ -131,7 +142,9 @@ class RedditPostCell: UITableViewCell {
     }
     
     private func setupBindings() {
-        
+        imageDataSubscription = self.viewModel.thumbnailPublisher.sink { (newImage) in
+            self.thumbnailImage.image = newImage
+        }
     }
     
 }

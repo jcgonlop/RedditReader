@@ -13,6 +13,7 @@ import Combine
 class RedditListViewModel: NSObject {
     
     var postsList = CurrentValueSubject<[RedditPostViewModel], Never>([])
+    var loading = PassthroughSubject<Bool, Never>()
     private var redditListSubscription: AnyCancellable?
     
     override init() {
@@ -27,10 +28,12 @@ class RedditListViewModel: NSObject {
         if let currentSubscription = redditListSubscription {
             currentSubscription.cancel()
         }
+        self.loading.send(true)
         self.redditListSubscription = AppDelegate.sharedNetworkManager?.request(ListingServices.getTopReddits).sink(receiveCompletion: { (receivedCompletion) in
             switch receivedCompletion {
             case .finished:
                 print("Finished")
+                self.loading.send(false)
                 self.redditListSubscription = nil
             case .failure(let error):
                 print(error)

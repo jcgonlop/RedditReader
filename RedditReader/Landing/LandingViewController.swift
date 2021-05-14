@@ -31,7 +31,7 @@ class LandingViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        view.backgroundColor = .darkBackground
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -74,6 +74,8 @@ class LandingViewController: UIViewController {
             self.continueAction(self.continueButton)
         }))
         continueButton.translatesAutoresizingMaskIntoConstraints = false
+        continueButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+        continueButton.tintColor = .customYellow
         self.stackView.addArrangedSubview(continueButton)
     }
     
