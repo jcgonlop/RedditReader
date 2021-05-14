@@ -47,6 +47,7 @@
 		7D2B3A6D264E85C10074C32C /* URLImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLImageView.swift; sourceTree = "<group>"; };
 		7D2B3A70264E8CC20074C32C /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		7D2B3A7D264E98AB0074C32C /* LoadingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingTableViewCell.swift; sourceTree = "<group>"; };
+		7D2B3A80264EA2840074C32C /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		7D48616E264E0E7C00F4DFB5 /* MainNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationController.swift; sourceTree = "<group>"; };
 		7D486178264E110F00F4DFB5 /* HTTPNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPNetworkManager.swift; sourceTree = "<group>"; };
 		7D48617C264E132D00F4DFB5 /* Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
@@ -78,6 +79,7 @@
 		7D246A1F264E02C300376B06 = {
 			isa = PBXGroup;
 			children = (
+				7D2B3A80264EA2840074C32C /* Readme.md */,
 				7D246A2A264E02C300376B06 /* RedditReader */,
 				7D246A29264E02C300376B06 /* Products */,
 			);
