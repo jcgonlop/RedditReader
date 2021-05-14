@@ -28,7 +28,7 @@ class RedditListView: UITableView {
     }
     
     required init?(coder: NSCoder) {
-        self.viewModel = RedditListViewModel()
+        self.viewModel = RedditListViewModel(listingService: ListingServices.shared)
         super.init(coder: coder)
     }
     

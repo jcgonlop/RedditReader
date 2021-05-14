@@ -11,7 +11,7 @@ import Combine
 
 class HomeViewController: UIViewController {
     
-    var redditListViewModel = RedditListViewModel()
+    var redditListViewModel = RedditListViewModel(listingService: ListingServices.shared)
     var redditListView: RedditListView
     
     // MARK: - Initializers

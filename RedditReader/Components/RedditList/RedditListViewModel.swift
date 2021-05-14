@@ -16,6 +16,11 @@ class RedditListViewModel: NSObject {
     private var redditListSubscription: AnyCancellable?
     private var currentPage: Int = 0
     private var batchSize: Int = 10
+    private let listingService: ListingServiceProtocol
+    
+    init(listingService: ListingServiceProtocol) {
+        self.listingService = listingService
+    }
     
     deinit {
         self.cancel()
@@ -26,26 +31,27 @@ class RedditListViewModel: NSObject {
         if let currentSubscription = redditListSubscription {
             currentSubscription.cancel()
         }
-        self.redditListSubscription = AppDelegate.sharedNetworkManager?.request(ListingServices.getTopReddits).sink(receiveCompletion: { (receivedCompletion) in
-            switch receivedCompletion {
-            case .finished:
-                print("Finished")
-                self.redditListSubscription = nil
-            case .failure(let error):
-                print(error)
-            }
-        }, receiveValue: { (response) in
-            print("Fetched data successfully")
-            let newList = RedditListModel(response).redditPostList.map {
-                RedditPostViewModel(model: $0)
-            }
-            if page == 0 {
-                self.postsList.send(newList)
-            } else {
-                self.currentPage += 1
-                self.postsList.send(self.postsList.value + newList.prefix(self.batchSize))
-            }
-        })
+        self.redditListSubscription = listingService.getTopReddits()
+            .sink(receiveCompletion: { (receivedCompletion) in
+                switch receivedCompletion {
+                case .finished:
+                    print("Finished")
+                    self.redditListSubscription = nil
+                case .failure(let error):
+                    print(error)
+                }
+            }, receiveValue: { (response) in
+                print("Fetched data successfully")
+                let newList = RedditListModel(response).redditPostList.map {
+                    RedditPostViewModel(model: $0)
+                }
+                if page == 0 {
+                    self.postsList.send(newList)
+                } else {
+                    self.currentPage += 1
+                    self.postsList.send(self.postsList.value + newList.prefix(self.batchSize))
+                }
+            })
     }
     
     func fetchNext() {

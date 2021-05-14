@@ -7,9 +7,34 @@
 //
 
 import Foundation
+import Combine
 
-struct ListingServices {
+protocol ListingServiceProtocol {
     
-    static let getTopReddits: HTTPRequest = HTTPRequest<EmptyData, RedditList>(endpoint: Endpoint.topJSON)
+    var networkManager: NetworkManagerProtocol { get }
+    
+    func getTopReddits() -> AnyPublisher<RedditList, Error>
+    
+}
+
+struct ListingServices: ListingServiceProtocol {
+    
+    static let shared: ListingServices = {
+        guard let manager = AppDelegate.sharedNetworkManager else {
+            preconditionFailure("Missing Network Manager")
+        }
+        return ListingServices(networkManager: manager)
+    }()
+    
+    let networkManager: NetworkManagerProtocol
+    
+    init(networkManager: NetworkManagerProtocol) {
+        self.networkManager = networkManager
+    }
+    
+    func getTopReddits() -> AnyPublisher<RedditList, Error> {
+        let request = HTTPRequest<EmptyData, RedditList>(endpoint: Endpoint.topJSON)
+        return self.networkManager.request(request)
+    }
     
 }
