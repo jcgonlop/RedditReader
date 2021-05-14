@@ -9,9 +9,15 @@ import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    var networkManager: NetworkManagerProtocol?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        guard let baseURL = Bundle.baseURL else {
+            preconditionFailure("Failed to retrieve base url from Info.plist file")
+        }
+        self.networkManager = HTTPNetworkManager(baseURL: baseURL)
         return true
     }
 
@@ -32,3 +38,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AppDelegate {
+    
+    static var sharedNetworkManager: NetworkManagerProtocol? {
+        guard let appDelegate = UIApplication.shared.delegate as? Self else {
+            return nil
+        }
+        return appDelegate.networkManager
+    }
+    
+}
