@@ -42,6 +42,7 @@ class RedditPostCell: UITableViewCell {
     // MARK: - Setup Methods
     
     func initialSetup() {
+        self.selectionStyle = .none
         contentView.addSubview(mainStack)
         let mainStackHeightConstraint = NSLayoutConstraint(item: mainStack, attribute: .height, relatedBy: .greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: 60)
         mainStackHeightConstraint.priority = .defaultLow

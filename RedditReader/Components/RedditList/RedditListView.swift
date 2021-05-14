@@ -21,7 +21,7 @@ class RedditListView: UITableView {
         self.viewModel = viewModel
         super.init(frame: CGRect.zero, style: .plain)
         self.refreshControl = UIRefreshControl()
-        self.refreshControl?.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        self.refreshControl?.attributedTitle = NSAttributedString(string: "Get me more")
         self.refreshControl?.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         self.setupBindings()
         self.setupView()
@@ -47,15 +47,6 @@ class RedditListView: UITableView {
         }
     }
     
-    func showLoader(_ isLoading: Bool) {
-        if isLoading {
-            self.spinner.startAnimating()
-        } else {
-            self.spinner.stopAnimating()
-        }
-        self.spinner.isHidden = !isLoading
-    }
-    
     func setupBindings() {
         viewModel.postsList.sink { [weak self] newValue in
             guard let self = self else { return }
@@ -63,11 +54,6 @@ class RedditListView: UITableView {
             if !newValue.isEmpty {
                 self.reloadData()
             }
-        }.store(in: &cancellables)
-        viewModel.loading.sink { [weak self] (isLoading) in
-            guard let self = self else { return }
-            self.showLoader(isLoading && self.viewModel.postsList.value.isEmpty)
-            self.layoutSubviews()
         }.store(in: &cancellables)
     }
     

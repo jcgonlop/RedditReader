@@ -72,6 +72,7 @@ class HomeViewController: UIViewController {
         self.title = "Home"
         self.navigationItem.titleView?.tintColor = .lightBackground
         redditListView.register(RedditPostCell.self, forCellReuseIdentifier: RedditPostCell.reuseIdentifier)
+        redditListView.register(LoadingTableViewCell.self, forCellReuseIdentifier: LoadingTableViewCell.reuseIdentifier)
         redditListView.separatorStyle = .none
         redditListView.rowHeight = UITableView.automaticDimension
         redditListView.estimatedRowHeight = 160.0
@@ -82,20 +83,36 @@ class HomeViewController: UIViewController {
 extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.row == redditListViewModel.postsList.value.count {
+            return 60
+        }
         let vm = redditListViewModel.postsList.value[indexPath.row]
         return vm.thumbnailSize.height + 24
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return redditListViewModel.postsList.value.count
+        return redditListViewModel.postsList.value.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: RedditPostCell.reuseIdentifier, for: indexPath) as? RedditPostCell else {
-            return UITableViewCell()
+        if indexPath.row == redditListViewModel.postsList.value.count {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: LoadingTableViewCell.reuseIdentifier, for: indexPath) as? LoadingTableViewCell else {
+                return UITableViewCell()
+            }
+            return cell
+        } else {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: RedditPostCell.reuseIdentifier, for: indexPath) as? RedditPostCell else {
+                return UITableViewCell()
+            }
+            cell.setupView(viewModel: redditListViewModel.postsList.value[indexPath.row])
+            return cell
         }
-        cell.setupView(viewModel: redditListViewModel.postsList.value[indexPath.row])
-        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if cell.isKind(of: LoadingTableViewCell.self) {
+            self.redditListViewModel.fetchNext()
+        }
     }
     
 }
