@@ -15,8 +15,6 @@ struct RedditList: Codable {
     
     struct ResponseData: Codable {
         
-        let modhash: String
-        let dist: Int
         let children: [RedditPost]
         let after: String?
         let before: String?
