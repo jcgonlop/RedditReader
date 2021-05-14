@@ -13,36 +13,29 @@ public protocol NetworkManagerProtocol {
     
     var baseURL: String { get }
     
-    func request<Request: RequestProtocol>(_ request: Request, handler: @escaping (Result<Request.Response, Error>) -> Void)
+    func request<Request: RequestProtocol>(_ request: Request) -> AnyPublisher<Request.Response, Error>
     
 }
 
-public class NetworkManager: NetworkManagerProtocol {
+public class HTTPNetworkManager: NetworkManagerProtocol {
     
-    public static let shared = NetworkManager()
-    
-    public var baseURL: String = ""
-    private var didSetup: Bool = false
+    public var baseURL: String
     private var defaultSession: URLSession
     private var cancellables: Set<AnyCancellable> = []
     
-    private init() {
+    public init(baseURL: String) {
+        self.baseURL = baseURL
         self.defaultSession = URLSession(configuration: URLSessionConfiguration.default)
     }
     
-    public func setup(baseURL: String) {
-        self.baseURL = baseURL
-        self.didSetup = true
-    }
-    
-    public func request<Request: RequestProtocol>(_ request: Request, handler: @escaping (Result<Request.Response, Error>) -> Void) {
+    public func request<Request: RequestProtocol>(_ request: Request) -> AnyPublisher<Request.Response, Error> {
         guard let url = request.endpoint.url(withBaseURL: self.baseURL, queryItems: request.queryItems) else {
             // TODO: Handle error
             preconditionFailure("Invalid URL")
         }
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = request.method?.rawValue
-        defaultSession
+        return defaultSession
             .dataTaskPublisher(for: urlRequest)
             .tryMap() { element -> Data in
                 guard let httpResponse = element.response as? HTTPURLResponse,
@@ -52,17 +45,7 @@ public class NetworkManager: NetworkManagerProtocol {
                 return element.data
             }
             .decode(type: Request.Response.self, decoder: JSONDecoder())
-            .sink( receiveCompletion: { (completion) in
-                switch completion {
-                case .failure(let error):
-                    handler(Result.failure(error))
-                default:
-                    break
-                }
-            }, receiveValue: { (value) in
-                handler(Result.success(value))
-            })
-            .store(in: &self.cancellables)
+            .eraseToAnyPublisher()
     }
     
 }
