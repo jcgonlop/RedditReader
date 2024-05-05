@@ -1,6 +1,6 @@
 # RedditReader
 
-## Version [1.0.0-alpha1] - 05/14/2021
+## Version [1.0.0] - 05/14/2021
 
 ### Added
 - Reddit Post List
